@@ -1,0 +1,2050 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>CA Black Label — Embroidery Pricing Calculator</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#c9a84c">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="CABL Pricing">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<style>
+  :root {
+    --black: #0a0a0a;
+    --dark: #141414;
+    --card: #1c1c1c;
+    --border: #2e2e2e;
+    --gold: #c9a84c;
+    --gold-light: #e4c06e;
+    --gold-dim: #8a6e2f;
+    --text: #f0f0f0;
+    --muted: #888;
+    --green: #4caf82;
+    --red: #e05c5c;
+    --radius: 10px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--black);
+    color: var(--text);
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    font-size: 14px;
+    min-height: 100vh;
+  }
+
+  header {
+    background: var(--dark);
+    border-bottom: 1px solid var(--border);
+    padding: 18px 32px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .logo-badge {
+    width: 40px; height: 40px;
+    background: var(--gold);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 900; font-size: 14px; color: #000;
+    letter-spacing: -0.5px;
+  }
+
+  header h1 { font-size: 18px; font-weight: 700; color: var(--text); }
+  header p { font-size: 12px; color: var(--muted); }
+
+  .main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 32px 24px;
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 24px;
+    align-items: start;
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    position: sticky;
+    top: 24px;
+  }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+  }
+
+  .card-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  label {
+    display: block;
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 5px;
+    margin-top: 12px;
+  }
+  label:first-of-type { margin-top: 0; }
+
+  input[type="number"], select {
+    width: 100%;
+    background: #0f0f0f;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 9px 12px;
+    color: var(--text);
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+    -moz-appearance: textfield;
+  }
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
+  input[type="number"]:focus, select:focus {
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px rgba(201,168,76,0.1);
+  }
+  select { cursor: pointer; }
+
+  .input-prefix {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  .input-prefix span {
+    position: absolute;
+    left: 12px;
+    color: var(--muted);
+    font-size: 13px;
+    pointer-events: none;
+  }
+  .input-prefix input { padding-left: 24px; }
+  .input-suffix {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  .input-suffix span {
+    position: absolute;
+    right: 12px;
+    color: var(--muted);
+    font-size: 13px;
+    pointer-events: none;
+  }
+  .input-suffix input { padding-right: 30px; }
+
+  /* TABS */
+  .tabs {
+    display: flex;
+    gap: 4px;
+    background: var(--dark);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 5px;
+    margin-bottom: 20px;
+  }
+  .tab-btn {
+    flex: 1;
+    padding: 10px 16px;
+    background: transparent;
+    border: none;
+    border-radius: 7px;
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.3px;
+  }
+  .tab-btn.active {
+    background: var(--gold);
+    color: #000;
+  }
+  .tab-btn:not(.active):hover { color: var(--text); background: var(--border); }
+
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* GRID INPUTS */
+  .input-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 20px;
+  }
+
+  .input-group { margin-bottom: 0; }
+
+  .section-divider {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: var(--gold-dim);
+    margin: 20px 0 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* RESULTS PANEL */
+  .results-card {
+    background: var(--dark);
+    border: 1px solid var(--gold-dim);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-top: 20px;
+  }
+
+  .results-header {
+    background: rgba(201,168,76,0.08);
+    border-bottom: 1px solid var(--gold-dim);
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .results-header span {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+
+  .results-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--border);
+  }
+
+  .result-item {
+    background: var(--dark);
+    padding: 16px 20px;
+  }
+  .result-item .r-label {
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+  }
+  .result-item .r-value {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .result-item.highlight {
+    background: rgba(201,168,76,0.06);
+  }
+  .result-item.highlight .r-label { color: var(--gold-dim); }
+  .result-item.highlight .r-value { color: var(--gold-light); font-size: 24px; }
+  .result-item.green .r-value { color: var(--green); }
+
+  .breakdown-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .breakdown-table tr td {
+    padding: 10px 20px;
+    font-size: 13px;
+    border-bottom: 1px solid var(--border);
+  }
+  .breakdown-table tr:last-child td { border-bottom: none; }
+  .breakdown-table tr td:last-child {
+    text-align: right;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+  .breakdown-table .total-row td {
+    background: rgba(201,168,76,0.06);
+    color: var(--gold-light);
+    font-weight: 700;
+    font-size: 14px;
+    border-top: 1px solid var(--gold-dim);
+  }
+
+  /* PRICE TAG SUMMARY */
+  .price-summary {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+  }
+
+  .price-tag {
+    flex: 1;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    text-align: center;
+  }
+  .price-tag .pt-label {
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+  .price-tag .pt-value {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--text);
+  }
+  .price-tag.featured {
+    border-color: var(--gold-dim);
+    background: rgba(201,168,76,0.06);
+  }
+  .price-tag.featured .pt-label { color: var(--gold-dim); }
+  .price-tag.featured .pt-value { color: var(--gold-light); font-size: 36px; }
+  .price-tag .pt-sub {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  /* Quantity note */
+  .qty-note {
+    display: inline-block;
+    background: rgba(201,168,76,0.12);
+    color: var(--gold-dim);
+    border-radius: 4px;
+    padding: 3px 8px;
+    font-size: 11px;
+    font-weight: 600;
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+
+  /* Patch type selector */
+  .patch-type-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-top: 0;
+  }
+  .patch-type-btn {
+    background: #0f0f0f;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px 8px;
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s;
+    line-height: 1.3;
+  }
+  .patch-type-btn.active {
+    border-color: var(--gold);
+    color: var(--gold);
+    background: rgba(201,168,76,0.08);
+  }
+  .patch-type-btn:hover:not(.active) { border-color: #555; color: var(--text); }
+
+  /* Reset btn */
+  .btn-reset {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    border-radius: 6px;
+    padding: 7px 14px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-reset:hover { border-color: var(--red); color: var(--red); }
+
+  .btn-export {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: none;
+    border-radius: 6px;
+    padding: 9px 16px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.3px;
+  }
+  .btn-export-customer {
+    background: var(--gold);
+    color: #000;
+  }
+  .btn-export-customer:hover { background: var(--gold-light); }
+  .btn-export-internal {
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--border);
+  }
+  .btn-export-internal:hover { color: var(--text); border-color: #555; background: rgba(255,255,255,0.04); }
+
+  .hint {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 4px;
+    line-height: 1.4;
+  }
+
+  /* ===== PRINT / PDF STYLES ===== */
+  @media print {
+    * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+
+    body { background: #fff !important; color: #111 !important; font-size: 11pt; }
+
+    header, .print-section-header, .print-footer { display: none !important; }
+    #print-invoice { display: none; }
+
+    /* ---- INTERNAL REPORT MODE ---- */
+    body[data-print-mode="internal"] header {
+      display: flex !important;
+      background: #0a0a0a !important;
+      color: #fff !important;
+      border-bottom: 3px solid #c9a84c !important;
+      padding: 14px 24px;
+      align-items: center;
+      gap: 12px;
+    }
+    body[data-print-mode="internal"] header h1 { color: #fff !important; font-size: 16pt; }
+    body[data-print-mode="internal"] header p { color: #bbb !important; }
+    body[data-print-mode="internal"] .logo-badge { background: #c9a84c !important; }
+    body[data-print-mode="internal"] .btn-export { display: none !important; }
+
+    body[data-print-mode="internal"] .main {
+      grid-template-columns: 1fr !important;
+      padding: 0 !important; gap: 0 !important;
+    }
+    body[data-print-mode="internal"] .tabs,
+    body[data-print-mode="internal"] .btn-reset,
+    body[data-print-mode="internal"] .patch-type-grid,
+    body[data-print-mode="internal"] .hint,
+    body[data-print-mode="internal"] .sidebar,
+    body[data-print-mode="internal"] .markup-row,
+    body[data-print-mode="internal"] .counter-wrap button { display: none !important; }
+    body[data-print-mode="internal"] .counter-wrap { border: 1px solid #ccc; }
+    body[data-print-mode="internal"] .tab-content { display: block !important; }
+    body[data-print-mode="internal"] .print-section-header {
+      display: block !important;
+      background: #0a0a0a !important;
+      color: #fff !important;
+      padding: 8px 24px;
+      font-size: 12pt; font-weight: 700; letter-spacing: 1px; margin-top: 16px;
+    }
+    body[data-print-mode="internal"] #tab-patch { page-break-before: always; }
+    body[data-print-mode="internal"] .card {
+      background: #f9f9f9 !important; border: 1px solid #ddd !important;
+      border-radius: 6px; page-break-inside: avoid; margin: 12px 24px;
+    }
+    body[data-print-mode="internal"] .card-title { color: #8a6e2f !important; border-bottom: 1px solid #ddd !important; }
+    body[data-print-mode="internal"] label { color: #444 !important; }
+    body[data-print-mode="internal"] input[type="number"],
+    body[data-print-mode="internal"] input[type="text"],
+    body[data-print-mode="internal"] select,
+    body[data-print-mode="internal"] textarea {
+      background: #fff !important; border: 1px solid #ccc !important; color: #111 !important;
+    }
+    body[data-print-mode="internal"] .section-divider { color: #8a6e2f !important; }
+    body[data-print-mode="internal"] .section-divider::after { background: #ddd !important; }
+    body[data-print-mode="internal"] .price-summary { margin: 12px 24px 0; page-break-inside: avoid; }
+    body[data-print-mode="internal"] .price-tag { background: #f5f5f5 !important; border: 1px solid #ddd !important; }
+    body[data-print-mode="internal"] .price-tag .pt-label { color: #666 !important; }
+    body[data-print-mode="internal"] .price-tag .pt-value { color: #111 !important; }
+    body[data-print-mode="internal"] .price-tag.featured { background: #fdf8ec !important; border-color: #c9a84c !important; }
+    body[data-print-mode="internal"] .price-tag.featured .pt-label { color: #8a6e2f !important; }
+    body[data-print-mode="internal"] .price-tag.featured .pt-value { color: #8a6e2f !important; }
+    body[data-print-mode="internal"] .results-card {
+      background: #fff !important; border: 1px solid #c9a84c !important;
+      margin: 12px 24px; page-break-inside: avoid;
+    }
+    body[data-print-mode="internal"] .results-header { background: #fdf8ec !important; border-bottom: 1px solid #c9a84c !important; }
+    body[data-print-mode="internal"] .results-header span { color: #8a6e2f !important; }
+    body[data-print-mode="internal"] .breakdown-table tr td { color: #111 !important; border-bottom: 1px solid #eee !important; }
+    body[data-print-mode="internal"] .breakdown-table .total-row td {
+      background: #fdf8ec !important; color: #8a6e2f !important; border-top: 1px solid #c9a84c !important;
+    }
+    body[data-print-mode="internal"] .print-footer {
+      display: block !important; text-align: center; color: #999 !important;
+      font-size: 9pt; padding: 16px; border-top: 1px solid #ddd; margin-top: 24px;
+    }
+
+    /* ---- CUSTOMER INVOICE MODE ---- */
+    body[data-print-mode="customer"] .main,
+    body[data-print-mode="customer"] .print-footer { display: none !important; }
+    body[data-print-mode="customer"] #print-invoice { display: block !important; }
+  }
+
+  /* ===== MOBILE RESPONSIVE ===== */
+  @media (max-width: 768px) {
+    header { padding: 14px 16px; gap: 10px; }
+    header h1 { font-size: 15px; }
+    header p  { display: none; }
+    header > div:last-child { flex-direction: column; gap: 6px; }
+    .btn-export { padding: 7px 10px; font-size: 11px; }
+
+    .main {
+      grid-template-columns: 1fr !important;
+      padding: 16px 12px;
+      gap: 16px;
+    }
+
+    .sidebar { position: static; order: 2; }
+
+    .tabs { gap: 3px; padding: 4px; }
+    .tab-btn { padding: 8px 8px; font-size: 11px; }
+
+    .card { padding: 16px; }
+
+    .input-grid { grid-template-columns: 1fr !important; gap: 0; }
+    .input-group { margin-top: 12px !important; }
+
+    .price-summary { flex-direction: column; gap: 8px; }
+    .price-tag { padding: 14px 16px; }
+    .price-tag .pt-value { font-size: 22px; }
+    .price-tag.featured .pt-value { font-size: 28px; }
+
+    .results-grid { grid-template-columns: 1fr 1fr; }
+
+    .cap-grid { grid-template-columns: 1fr 1fr; }
+
+    .bulk-tiers { grid-template-columns: repeat(3, 1fr); }
+
+    .patch-type-grid { grid-template-columns: repeat(2, 1fr); }
+
+    .garment-type-toggle { grid-template-columns: 1fr 1fr; }
+
+    .markup-row input[type="range"] { min-width: 0; }
+
+    .breakdown-table tr td { font-size: 12px; padding: 8px 12px; }
+
+    .inv-parties { grid-template-columns: 1fr; }
+    .inv-header { flex-direction: column; gap: 16px; }
+    .inv-meta { text-align: left; }
+    .inv-meta table { margin-left: 0; }
+    .inv-totals-inner { width: 100%; }
+    .results-card { margin: 8px 0; }
+
+    /* Safe area for notched phones */
+    body { padding-bottom: env(safe-area-inset-bottom); }
+    header { padding-top: max(14px, env(safe-area-inset-top)); }
+  }
+
+  @media (max-width: 420px) {
+    .cap-grid { grid-template-columns: 1fr 1fr; }
+    .cap-stat .cs-value { font-size: 18px; }
+    .bulk-tiers { grid-template-columns: repeat(3, 1fr); }
+    .tab-btn { font-size: 10px; padding: 7px 4px; }
+  }
+
+  /* Hide print-only elements on screen */
+  .print-section-header, .print-footer { display: none; }
+
+  /* Customer invoice print styles (screen preview hidden) */
+  #print-invoice { display: none; }
+
+  /* Invoice layout styles (used inside #print-invoice at print time) */
+  .inv-page { font-family: 'Segoe UI', system-ui, sans-serif; color: #111; max-width: 780px; margin: 0 auto; padding: 40px; }
+  .inv-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 36px; padding-bottom: 24px; border-bottom: 3px solid #c9a84c; }
+  .inv-brand .inv-logo { width: 52px; height: 52px; background: #0a0a0a; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #c9a84c; font-weight: 900; font-size: 13px; line-height: 1.2; text-align: center; margin-bottom: 8px; }
+  .inv-brand .inv-biz-name { font-size: 16pt; font-weight: 800; color: #0a0a0a; }
+  .inv-brand .inv-biz-sub { font-size: 10pt; color: #666; }
+  .inv-meta { text-align: right; }
+  .inv-meta .inv-title { font-size: 28pt; font-weight: 900; color: #c9a84c; letter-spacing: 2px; line-height: 1; margin-bottom: 8px; }
+  .inv-meta table { margin-left: auto; font-size: 10pt; }
+  .inv-meta table td { padding: 2px 0 2px 16px; }
+  .inv-meta table td:first-child { color: #888; text-align: right; }
+  .inv-meta table td:last-child { font-weight: 600; color: #111; }
+
+  .inv-parties { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px; }
+  .inv-party-label { font-size: 9pt; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: #888; margin-bottom: 6px; }
+  .inv-party-value { font-size: 11pt; font-weight: 600; color: #111; line-height: 1.6; }
+  .inv-party-value .sub { font-weight: 400; color: #555; font-size: 10pt; }
+
+  .inv-table { width: 100%; border-collapse: collapse; margin-bottom: 0; font-size: 10.5pt; }
+  .inv-table thead tr { background: #0a0a0a; color: #fff; }
+  .inv-table thead td { padding: 10px 14px; font-weight: 700; font-size: 9pt; letter-spacing: 0.8px; text-transform: uppercase; }
+  .inv-table thead td:last-child { text-align: right; }
+  .inv-table thead td:nth-child(2), .inv-table thead td:nth-child(3) { text-align: center; }
+  .inv-table tbody tr { border-bottom: 1px solid #eee; }
+  .inv-table tbody tr:last-child { border-bottom: none; }
+  .inv-table tbody td { padding: 12px 14px; vertical-align: top; }
+  .inv-table tbody td:nth-child(2), .inv-table tbody td:nth-child(3) { text-align: center; color: #555; }
+  .inv-table tbody td:last-child { text-align: right; font-weight: 700; }
+  .inv-table .desc-main { font-weight: 600; color: #111; }
+  .inv-table .desc-sub { font-size: 9pt; color: #777; margin-top: 2px; line-height: 1.4; }
+  .inv-table .discount-row td { color: #c9a84c; font-style: italic; }
+  .inv-table .discount-row td:last-child { font-weight: 700; }
+
+  .inv-totals { display: flex; justify-content: flex-end; margin-top: 0; border-top: 2px solid #eee; }
+  .inv-totals-inner { width: 280px; }
+  .inv-totals-row { display: flex; justify-content: space-between; padding: 8px 14px; font-size: 10.5pt; border-bottom: 1px solid #f0f0f0; }
+  .inv-totals-row .tl { color: #555; }
+  .inv-totals-row .tv { font-weight: 600; color: #111; }
+  .inv-totals-final { display: flex; justify-content: space-between; padding: 12px 14px; background: #0a0a0a; color: #fff; font-size: 13pt; font-weight: 800; border-radius: 0 0 6px 6px; }
+  .inv-totals-final span:last-child { color: #c9a84c; }
+
+  .inv-notes { margin-top: 28px; padding: 16px 20px; background: #f9f9f9; border-left: 4px solid #c9a84c; border-radius: 0 6px 6px 0; }
+  .inv-notes .inv-notes-label { font-size: 9pt; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #888; margin-bottom: 6px; }
+  .inv-notes .inv-notes-text { font-size: 10pt; color: #444; line-height: 1.6; }
+
+  .inv-terms { margin-top: 20px; display: flex; justify-content: space-between; align-items: flex-end; }
+  .inv-terms-left .terms-label { font-size: 9pt; color: #888; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; margin-bottom: 4px; }
+  .inv-terms-left .terms-value { font-size: 11pt; font-weight: 700; color: #111; }
+  .inv-sig { text-align: right; }
+  .inv-sig .sig-line { border-top: 1px solid #bbb; width: 180px; margin-left: auto; margin-bottom: 4px; }
+  .inv-sig .sig-label { font-size: 9pt; color: #888; }
+
+  .inv-footer { margin-top: 32px; padding-top: 16px; border-top: 1px solid #ddd; text-align: center; font-size: 9pt; color: #999; }
+
+  /* Markup slider */
+  .markup-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 0;
+  }
+  .markup-row input[type="range"] {
+    flex: 1;
+    -webkit-appearance: none;
+    appearance: none;
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    outline: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+  }
+  .markup-row input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: var(--gold);
+    cursor: pointer;
+    border: 2px solid #000;
+    box-shadow: 0 0 0 2px var(--gold-dim);
+  }
+  .markup-row input[type="range"]::-moz-range-thumb {
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: var(--gold);
+    cursor: pointer;
+    border: 2px solid #000;
+  }
+  .markup-badge {
+    background: rgba(201,168,76,0.15);
+    color: var(--gold-light);
+    border: 1px solid var(--gold-dim);
+    border-radius: 5px;
+    padding: 4px 9px;
+    font-size: 13px;
+    font-weight: 700;
+    min-width: 46px;
+    text-align: center;
+    white-space: nowrap;
+  }
+  .markup-effective {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+  .markup-effective span { color: var(--gold-dim); font-weight: 600; }
+
+  /* Counter input with +/- buttons */
+  .counter-wrap {
+    display: flex;
+    align-items: center;
+    background: #0f0f0f;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .counter-wrap button {
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    font-size: 16px;
+    font-weight: 700;
+    padding: 0 12px;
+    height: 38px;
+    cursor: pointer;
+    transition: color 0.15s, background 0.15s;
+    line-height: 1;
+  }
+  .counter-wrap button:hover { color: var(--gold); background: rgba(201,168,76,0.08); }
+  .counter-wrap input[type="number"] {
+    border: none;
+    border-left: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+    border-radius: 0;
+    text-align: center;
+    width: 56px;
+    flex-shrink: 0;
+    background: #0f0f0f;
+  }
+  .counter-wrap input[type="number"]:focus { box-shadow: none; border-color: var(--border); }
+
+  .free-badge {
+    display: inline-block;
+    background: rgba(76,175,130,0.15);
+    color: var(--green);
+    border-radius: 4px;
+    padding: 2px 7px;
+    font-size: 10px;
+    font-weight: 700;
+    margin-left: 6px;
+    vertical-align: middle;
+    letter-spacing: 0.5px;
+  }
+  .charge-badge {
+    display: inline-block;
+    background: rgba(201,168,76,0.12);
+    color: var(--gold-dim);
+    border-radius: 4px;
+    padding: 2px 7px;
+    font-size: 10px;
+    font-weight: 700;
+    margin-left: 6px;
+    vertical-align: middle;
+    letter-spacing: 0.5px;
+  }
+
+  /* Sync button */
+  .btn-sync {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--gold-dim);
+    border-radius: 6px;
+    padding: 9px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: 100%;
+  }
+  .btn-sync:hover { border-color: var(--gold); color: var(--gold); background: rgba(201,168,76,0.06); }
+
+  /* Capacity stat cards */
+  .cap-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    border: 1px solid var(--border);
+    margin-top: 20px;
+  }
+  .cap-stat {
+    background: var(--dark);
+    padding: 18px 16px;
+    text-align: center;
+  }
+  .cap-stat.featured { background: rgba(201,168,76,0.07); }
+  .cap-stat .cs-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .cap-stat.featured .cs-label { color: var(--gold-dim); }
+  .cap-stat .cs-value {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--text);
+    line-height: 1;
+  }
+  .cap-stat.featured .cs-value { color: var(--gold-light); }
+  .cap-stat .cs-sub {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 5px;
+  }
+
+  /* Timeline bar */
+  .cap-timeline {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-top: 12px;
+  }
+  .cap-timeline-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 14px;
+  }
+  .cap-bar-wrap {
+    height: 28px;
+    background: var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    display: flex;
+    margin-bottom: 8px;
+  }
+  .cap-bar-run {
+    background: var(--gold);
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: #000;
+    transition: width 0.4s ease;
+    min-width: 2px;
+  }
+  .cap-bar-hoop {
+    background: #3a6e52;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: #fff;
+    transition: width 0.4s ease;
+    min-width: 2px;
+  }
+  .cap-bar-idle {
+    background: var(--dark);
+    height: 100%;
+    flex: 1;
+  }
+  .cap-legend {
+    display: flex;
+    gap: 16px;
+    font-size: 11px;
+    color: var(--muted);
+  }
+  .cap-legend-dot {
+    display: inline-block;
+    width: 10px; height: 10px;
+    border-radius: 2px;
+    margin-right: 5px;
+    vertical-align: middle;
+  }
+
+  /* Day grid */
+  .cap-day-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 12px;
+  }
+  .cap-day {
+    width: 28px; height: 28px;
+    border-radius: 4px;
+    background: rgba(201,168,76,0.15);
+    border: 1px solid var(--gold-dim);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    font-weight: 700;
+    color: var(--gold-dim);
+  }
+  .cap-day.partial {
+    background: rgba(201,168,76,0.06);
+    border-color: var(--border);
+    color: var(--muted);
+  }
+  .cap-day.today {
+    background: var(--gold);
+    border-color: var(--gold);
+    color: #000;
+  }
+
+  /* Garment type toggle */
+  .garment-type-toggle {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 0;
+  }
+  .garment-type-btn {
+    background: #0f0f0f;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: 11px 10px;
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s;
+  }
+  .garment-type-btn.active {
+    border-color: var(--gold);
+    color: var(--gold);
+    background: rgba(201,168,76,0.08);
+  }
+  .garment-type-btn:hover:not(.active) { border-color: #555; color: var(--text); }
+
+  /* Hat settings panel */
+  .hat-settings {
+    background: rgba(201,168,76,0.05);
+    border: 1px solid var(--gold-dim);
+    border-radius: 8px;
+    padding: 16px;
+    margin-top: 0;
+    display: none;
+  }
+  .hat-settings.visible { display: block; }
+  .hat-settings-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: var(--gold-dim);
+    margin-bottom: 12px;
+  }
+
+  /* Stitch warning */
+  .stitch-warning {
+    display: none;
+    background: rgba(224,92,92,0.08);
+    border: 1px solid #e05c5c44;
+    border-radius: 6px;
+    padding: 10px 14px;
+    font-size: 12px;
+    color: var(--red);
+    margin-top: 8px;
+    line-height: 1.5;
+  }
+  .stitch-warning.visible { display: block; }
+
+  /* Minimum applied badge */
+  .min-applied-badge {
+    display: inline-block;
+    background: rgba(201,168,76,0.15);
+    color: var(--gold);
+    border: 1px solid var(--gold-dim);
+    border-radius: 5px;
+    padding: 3px 9px;
+    font-size: 11px;
+    font-weight: 700;
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+
+  /* Bulk discount tiers */
+  .bulk-tiers {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 6px;
+    margin-top: 0;
+  }
+  .bulk-tier {
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: 9px 6px;
+    text-align: center;
+    background: #0f0f0f;
+    transition: all 0.2s;
+  }
+  .bulk-tier.active {
+    border-color: var(--gold);
+    background: rgba(201,168,76,0.10);
+  }
+  .bulk-tier .bt-qty {
+    font-size: 10px;
+    color: var(--muted);
+    margin-bottom: 4px;
+    font-weight: 600;
+  }
+  .bulk-tier.active .bt-qty { color: var(--gold-dim); }
+  .bulk-tier .bt-pct {
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--text);
+  }
+  .bulk-tier.active .bt-pct { color: var(--gold-light); }
+  .bulk-tier .bt-label {
+    font-size: 9px;
+    color: var(--muted);
+    margin-top: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .bulk-tier.active .bt-label { color: var(--gold-dim); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-badge">CA<br>BL</div>
+  <div style="flex:1;">
+    <h1>Embroidery Pricing Calculator</h1>
+    <p>CA Black Label — Garments &amp; Patches</p>
+  </div>
+  <div style="display:flex;gap:8px;">
+    <button class="btn-export btn-export-customer" onclick="exportCustomer()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+      Customer Invoice
+    </button>
+    <button class="btn-export btn-export-internal" onclick="exportInternal()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Internal Report
+    </button>
+  </div>
+</header>
+
+<div class="main">
+
+  <!-- SIDEBAR: Global Settings -->
+  <aside class="sidebar">
+    <div class="card">
+      <div class="card-title">⚙ Pricing Settings</div>
+
+      <label>Cost per 1,000 Stitches</label>
+      <div class="input-prefix"><span>$</span>
+        <input type="number" id="costPerK" value="1.50" step="0.01" min="0" onchange="calc()">
+      </div>
+
+      <label>Profit Markup</label>
+      <div class="input-suffix">
+        <input type="number" id="profitMargin" value="30" step="1" min="0" max="500" onchange="calc()">
+        <span>%</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🧾 Invoice Details</div>
+
+      <label>Client / Company Name</label>
+      <input type="text" id="inv_client" placeholder="e.g. Eastside Athletics" style="width:100%;background:#0f0f0f;border:1px solid var(--border);border-radius:6px;padding:9px 12px;color:var(--text);font-size:14px;outline:none;" oninput="calc()">
+
+      <label>PO / Order Number</label>
+      <input type="text" id="inv_po" placeholder="e.g. PO-2026-042" style="width:100%;background:#0f0f0f;border:1px solid var(--border);border-radius:6px;padding:9px 12px;color:var(--text);font-size:14px;outline:none;margin-top:0;">
+
+      <label>Payment Terms</label>
+      <select id="inv_terms" style="width:100%;background:#0f0f0f;border:1px solid var(--border);border-radius:6px;padding:9px 12px;color:var(--text);font-size:14px;outline:none;cursor:pointer;">
+        <option>Due on Receipt</option>
+        <option>Net 7</option>
+        <option>Net 15</option>
+        <option>Net 30</option>
+        <option>50% Deposit / 50% on Delivery</option>
+      </select>
+
+      <label>Notes (optional)</label>
+      <textarea id="inv_notes" rows="3" placeholder="e.g. Rush order, include hang tags..." style="width:100%;background:#0f0f0f;border:1px solid var(--border);border-radius:6px;padding:9px 12px;color:var(--text);font-size:13px;outline:none;resize:vertical;font-family:inherit;line-height:1.5;"></textarea>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📊 Quick Reference</div>
+      <table style="width:100%;font-size:12px;line-height:2;color:var(--muted);">
+        <tr><td>Small design</td><td style="text-align:right;color:var(--text)">1k–5k stitches</td></tr>
+        <tr><td>Medium design</td><td style="text-align:right;color:var(--text)">5k–12k stitches</td></tr>
+        <tr><td>Large design</td><td style="text-align:right;color:var(--text)">12k–25k stitches</td></tr>
+        <tr><td>Small patch (2")</td><td style="text-align:right;color:var(--text)">2k–5k stitches</td></tr>
+        <tr><td>Medium patch (4")</td><td style="text-align:right;color:var(--text)">5k–10k stitches</td></tr>
+        <tr><td>Large patch (6"+)</td><td style="text-align:right;color:var(--text)">10k–20k stitches</td></tr>
+      </table>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <div>
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('garment', this)">👕 Garment Embroidery</button>
+      <button class="tab-btn" onclick="switchTab('patch', this)">🔷 Patch Embroidery</button>
+      <button class="tab-btn" onclick="switchTab('capacity', this)">⏱ Capacity</button>
+    </div>
+
+    <!-- Print-only section label -->
+    <div class="print-section-header">GARMENT EMBROIDERY ESTIMATE</div>
+
+    <!-- ===== GARMENT TAB ===== -->
+    <div id="tab-garment" class="tab-content active">
+      <div class="card">
+        <div class="card-title" id="g_cardTitle">👕 Garment Job Details</div>
+
+        <div class="section-divider">Garment Type</div>
+        <div class="garment-type-toggle">
+          <button class="garment-type-btn active" id="btn-flat" onclick="setGarmentType('flat', this)">👕 Flat Goods<br><span style="font-size:10px;font-weight:400;color:var(--muted)">Shirts, hoodies, jackets</span></button>
+          <button class="garment-type-btn" id="btn-hat" onclick="setGarmentType('hat', this)">🧢 Hat / Cap<br><span style="font-size:10px;font-weight:400;color:var(--muted)">Structured caps, beanies</span></button>
+        </div>
+
+        <div class="hat-settings" id="hatSettings">
+          <div class="hat-settings-title">🧢 Cap Frame Settings</div>
+          <div class="input-grid">
+            <div class="input-group">
+              <label>Cap Frame Surcharge (per hat)</label>
+              <div class="input-prefix"><span>$</span>
+                <input type="number" id="g_capSurcharge" value="2.50" step="0.25" min="0" onchange="calc()">
+              </div>
+            </div>
+            <div class="input-group">
+              <label>Minimum Price Per Hat</label>
+              <div class="input-prefix"><span>$</span>
+                <input type="number" id="g_hatMinimum" value="10.00" step="0.50" min="0" onchange="calc()">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-divider">Design</div>
+        <div class="input-grid">
+          <div class="input-group">
+            <label>Stitch Count</label>
+            <input type="number" id="g_stitches" value="8000" step="500" min="0" onchange="checkHatStitches(); calc()">
+            <div class="stitch-warning" id="g_stitchWarning">⚠ Designs over 8,000 stitches on caps often need re-digitizing for the curved surface. Consider simplifying or splitting into a multi-color run.</div>
+          </div>
+          <div class="input-group">
+            <label>Number of Placements</label>
+            <input type="number" id="g_placements" value="1" step="1" min="1" onchange="calc()">
+            <p class="hint">Locations on garment (chest, sleeve, etc.)</p>
+          </div>
+        </div>
+
+        <div class="section-divider">Materials</div>
+        <div class="input-grid">
+          <div class="input-group">
+            <label>Topping / Tear Away per Piece</label>
+            <div class="input-prefix"><span>$</span>
+              <input type="number" id="g_topping" value="0.00" step="0.05" min="0" onchange="calc()">
+            </div>
+          </div>
+          <div class="input-group" style="margin-top:12px;">
+            <label>Blank Garment Cost (wholesale)</label>
+            <div class="input-prefix"><span>$</span>
+              <input type="number" id="g_blank" value="0.00" step="0.50" min="0" oninput="updateMarkupDisplay(); calc()">
+            </div>
+            <p class="hint">Leave 0 if embroidery-only job</p>
+          </div>
+          <div class="input-group" style="margin-top:12px;">
+            <label>Garment Retail Multiplier <span class="free-badge" style="background:rgba(76,175,130,0.15);color:var(--green)">SETS SELL PRICE</span></label>
+            <div class="markup-row">
+              <input type="range" id="g_blankMarkup" min="1.0" max="3.0" step="0.1" value="1.0" oninput="updateMarkupDisplay(); calc()">
+              <span class="markup-badge" id="g_markupBadge">1.0×</span>
+            </div>
+            <p class="markup-effective" id="g_markupEffective">Effective garment cost: <span>$0.00</span></p>
+          </div>
+        </div>
+
+        <div class="section-divider">Colors &amp; Trims</div>
+        <div class="input-grid">
+          <div class="input-group">
+            <label>Thread Colors in Design <span class="free-badge">FIRST 3 FREE</span></label>
+            <div class="counter-wrap">
+              <button type="button" onclick="adjustCounter('g_colors', -1)">−</button>
+              <input type="number" id="g_colors" value="3" step="1" min="1" max="50" onchange="updateColorBadge(); calc()">
+              <button type="button" onclick="adjustCounter('g_colors', 1)">+</button>
+            </div>
+            <p class="hint" id="g_colorHint">No extra color charge</p>
+          </div>
+          <div class="input-group">
+            <label>Number of Trims <span class="charge-badge">$0.05 EA</span></label>
+            <div class="counter-wrap">
+              <button type="button" onclick="adjustCounter('g_trims', -1)">−</button>
+              <input type="number" id="g_trims" value="0" step="1" min="0" max="50" onchange="calc()">
+              <button type="button" onclick="adjustCounter('g_trims', 1)">+</button>
+            </div>
+            <p class="hint">Thread cuts during embroidery</p>
+          </div>
+        </div>
+
+        <div class="section-divider">Digitizing &amp; Order</div>
+        <div class="input-grid">
+          <div class="input-group">
+            <label>Digitizing Fee (total)</label>
+            <div class="input-prefix"><span>$</span>
+              <input type="number" id="g_digitizing" value="50.00" step="5" min="0" onchange="calc()">
+            </div>
+          </div>
+          <div class="input-group">
+            <label>Order Quantity (pieces)</label>
+            <input type="number" id="g_qty" value="12" step="1" min="1" onchange="calc()">
+          </div>
+        </div>
+      </div>
+
+      <!-- Garment Results -->
+      <div id="g_results"></div>
+    </div>
+
+    <!-- Print-only section label -->
+    <div class="print-section-header">PATCH EMBROIDERY ESTIMATE</div>
+
+    <!-- ===== PATCH TAB ===== -->
+    <div id="tab-patch" class="tab-content">
+      <div class="card">
+        <div class="card-title">🔷 Patch Job Details</div>
+
+        <div class="section-divider">Patch Type / Backing</div>
+        <div class="patch-type-grid" id="patchTypeGrid">
+          <button class="patch-type-btn active" data-cost="0.08" onclick="selectPatchType(this)">Iron-On<br><span style="color:var(--muted);font-weight:400">+$0.08/ea</span></button>
+          <button class="patch-type-btn" data-cost="0.18" onclick="selectPatchType(this)">Velcro<br><span style="color:var(--muted);font-weight:400">+$0.18/ea</span></button>
+          <button class="patch-type-btn" data-cost="0.05" onclick="selectPatchType(this)">Sew-On<br><span style="color:var(--muted);font-weight:400">+$0.05/ea</span></button>
+          <button class="patch-type-btn" data-cost="0.10" onclick="selectPatchType(this)">Heat Seal<br><span style="color:var(--muted);font-weight:400">+$0.10/ea</span></button>
+          <button class="patch-type-btn" data-cost="0.25" onclick="selectPatchType(this)">PVC / 3D<br><span style="color:var(--muted);font-weight:400">+$0.25/ea</span></button>
+          <button class="patch-type-btn" data-cost="0.30" onclick="selectPatchType(this)">Chenille<br><span style="color:var(--muted);font-weight:400">+$0.30/ea</span></button>
+        </div>
+
+        <div class="section-divider">Design</div>
+        <div class="input-grid">
+          <div class="input-group">
+            <label>Stitch Count</label>
+            <input type="number" id="p_stitches" value="6500" step="500" min="0" onchange="calc()">
+          </div>
+          <div class="input-group">
+            <label>Patch Size (approx. inches)</label>
+            <select id="p_size" onchange="autofillPatchStitches()">
+              <option value="custom">Custom / Manual Entry</option>
+              <option value="2">2" — ~2,000 stitches</option>
+              <option value="3">3" — ~4,000 stitches</option>
+              <option value="4" selected>4" — ~7,000 stitches</option>
+              <option value="5">5" — ~11,000 stitches</option>
+              <option value="6">6" — ~16,000 stitches</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="section-divider">Materials</div>
+        <div class="input-grid">
+          <div class="input-group">
+            <label>Patch Base Material (twill/felt) per ea</label>
+            <div class="input-prefix"><span>$</span>
+              <input type="number" id="p_base" value="0.30" step="0.05" min="0" onchange="calc()">
+            </div>
+          </div>
+          <div class="input-group">
+            <label>Merrowed Border / Edge Cost</label>
+            <div class="input-prefix"><span>$</span>
+              <input type="number" id="p_border" value="0.15" step="0.05" min="0" onchange="calc()">
+            </div>
+          </div>
+        </div>
+
+        <div class="section-divider">Digitizing &amp; Order</div>
+        <div class="input-grid">
+          <div class="input-group">
+            <label>Digitizing Fee (total)</label>
+            <div class="input-prefix"><span>$</span>
+              <input type="number" id="p_digitizing" value="35.00" step="5" min="0" onchange="calc()">
+            </div>
+          </div>
+          <div class="input-group">
+            <label>Order Quantity (patches)</label>
+            <input type="number" id="p_qty" value="25" step="1" min="1" onchange="updateBulkTiers(); calc()">
+          </div>
+        </div>
+
+        <div class="section-divider">Bulk Discount Tiers</div>
+        <div id="p_bulkTiers" class="bulk-tiers"></div>
+      </div>
+
+      <!-- Patch Results -->
+      <div id="p_results"></div>
+    </div>
+
+    <!-- ===== CAPACITY TAB ===== -->
+    <div id="tab-capacity" class="tab-content">
+      <div class="card">
+        <div class="card-title">⏱ Production Capacity Estimator</div>
+
+        <div class="section-divider">Machine Setup</div>
+        <div class="input-grid">
+          <div class="input-group">
+            <label>Machine Speed (SPM)</label>
+            <input type="number" id="cap_spm" value="850" step="50" min="100" onchange="calcCapacity()">
+          </div>
+          <div class="input-group">
+            <label>Number of Machines / Heads</label>
+            <div class="counter-wrap">
+              <button type="button" onclick="adjustCounter('cap_machines', -1)">−</button>
+              <input type="number" id="cap_machines" value="1" step="1" min="1" max="20" onchange="calcCapacity()">
+              <button type="button" onclick="adjustCounter('cap_machines', 1)">+</button>
+            </div>
+          </div>
+          <div class="input-group" style="margin-top:12px;">
+            <label>Working Hours per Day</label>
+            <input type="number" id="cap_hours" value="8" step="0.5" min="1" max="24" onchange="calcCapacity()">
+          </div>
+          <div class="input-group" style="margin-top:12px;">
+            <label>Machine Efficiency</label>
+            <div class="input-suffix">
+              <input type="number" id="cap_efficiency" value="75" step="5" min="10" max="100" onchange="calcCapacity()">
+              <span>%</span>
+            </div>
+            <p class="hint">Accounts for hooping, thread changes, trims. Typical: 70–80%</p>
+          </div>
+        </div>
+
+        <div class="section-divider">Design</div>
+        <div class="input-grid">
+          <div class="input-group">
+            <label>Stitch Count per Design</label>
+            <input type="number" id="cap_stitches" value="8000" step="500" min="0" onchange="calcCapacity()">
+          </div>
+          <div class="input-group">
+            <label>Placements per Piece</label>
+            <div class="counter-wrap">
+              <button type="button" onclick="adjustCounter('cap_placements', -1)">−</button>
+              <input type="number" id="cap_placements" value="1" step="1" min="1" max="10" onchange="calcCapacity()">
+              <button type="button" onclick="adjustCounter('cap_placements', 1)">+</button>
+            </div>
+          </div>
+          <div class="input-group" style="margin-top:12px;">
+            <label>Hooping Time per Piece (min)</label>
+            <input type="number" id="cap_hoopTime" value="3" step="0.5" min="0" onchange="calcCapacity()">
+          </div>
+          <div class="input-group" style="margin-top:12px;">
+            <label>Order Quantity</label>
+            <input type="number" id="cap_qty" value="24" step="1" min="1" onchange="calcCapacity()">
+          </div>
+        </div>
+
+        <div class="section-divider">Revenue (optional)</div>
+        <div class="input-grid">
+          <div class="input-group">
+            <label>Sell Price per Piece</label>
+            <div class="input-prefix"><span>$</span>
+              <input type="number" id="cap_sellPrice" value="0" step="0.50" min="0" onchange="calcCapacity()">
+            </div>
+            <p class="hint">Enter to see daily revenue projection</p>
+          </div>
+          <div class="input-group" style="display:flex;align-items:flex-end;">
+            <button class="btn-sync" onclick="syncFromActive()">↙ Sync from Active Tab</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="cap_results"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  // Patch backing cost state
+  let patchBackingCost = 0.08;
+
+  function switchTab(tab, btn) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + tab).classList.add('active');
+    if (tab === 'capacity') calcCapacity(); else calc();
+  }
+
+  function selectPatchType(btn) {
+    document.querySelectorAll('.patch-type-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    patchBackingCost = parseFloat(btn.dataset.cost);
+    calc();
+  }
+
+  function autofillPatchStitches() {
+    const sizeMap = { '2': 2000, '3': 4000, '4': 7000, '5': 11000, '6': 16000 };
+    const sel = document.getElementById('p_size').value;
+    if (sel !== 'custom') {
+      document.getElementById('p_stitches').value = sizeMap[sel];
+    }
+    calc();
+  }
+
+  function fmt(n) {
+    return '$' + n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  }
+
+  function adjustCounter(id, delta) {
+    const el = document.getElementById(id);
+    const min = parseFloat(el.min) || 0;
+    const max = parseFloat(el.max) || 9999;
+    el.value = Math.max(min, Math.min(max, (parseInt(el.value) || 0) + delta));
+    if (id === 'g_colors') updateColorBadge();
+    calc();
+  }
+
+  function updateMarkupDisplay() {
+    const wholesale = parseFloat(document.getElementById('g_blank').value) || 0;
+    const markup = parseFloat(document.getElementById('g_blankMarkup').value) || 1.0;
+    document.getElementById('g_markupBadge').textContent = markup.toFixed(1) + '×';
+    const effective = wholesale * markup;
+    document.getElementById('g_markupEffective').innerHTML =
+      wholesale > 0
+        ? `Effective garment cost: <span>${fmt(effective)}</span>`
+        : `Set a wholesale cost above to see effective price`;
+  }
+
+  const BULK_TIERS = [
+    { min: 1,   max: 24,   pct: 0,    label: '1–24' },
+    { min: 25,  max: 49,   pct: 0.05, label: '25–49' },
+    { min: 50,  max: 99,   pct: 0.10, label: '50–99' },
+    { min: 100, max: 199,  pct: 0.15, label: '100–199' },
+    { min: 200, max: 499,  pct: 0.20, label: '200–499' },
+    { min: 500, max: null, pct: 0.25, label: '500+' },
+  ];
+
+  function updateBulkTiers() {
+    const qty = parseInt(document.getElementById('p_qty').value) || 1;
+    const container = document.getElementById('p_bulkTiers');
+    container.innerHTML = BULK_TIERS.map(t => {
+      const active = qty >= t.min && (t.max === null || qty <= t.max);
+      const pctLabel = t.pct === 0 ? 'No discount' : `${(t.pct * 100).toFixed(0)}% off`;
+      return `<div class="bulk-tier${active ? ' active' : ''}">
+        <div class="bt-qty">${t.label}</div>
+        <div class="bt-pct">${t.pct === 0 ? '—' : (t.pct * 100).toFixed(0) + '%'}</div>
+        <div class="bt-label">${t.pct === 0 ? 'standard' : 'discount'}</div>
+      </div>`;
+    }).join('');
+  }
+
+  function getBulkDiscount(qty) {
+    if (qty >= 500) return 0.25;
+    if (qty >= 200) return 0.20;
+    if (qty >= 100) return 0.15;
+    if (qty >= 50)  return 0.10;
+    if (qty >= 25)  return 0.05;
+    return 0;
+  }
+
+  function updateColorBadge() {
+    const colors = parseInt(document.getElementById('g_colors').value) || 1;
+    const extra = Math.max(0, colors - 3);
+    const hint = document.getElementById('g_colorHint');
+    if (extra === 0) {
+      hint.innerHTML = 'No extra color charge';
+      hint.style.color = 'var(--green)';
+    } else {
+      hint.innerHTML = `+${extra} extra color${extra !== 1 ? 's' : ''} = <strong style="color:var(--gold-dim)">${fmt(extra * 0.25)}</strong> added`;
+      hint.style.color = 'var(--muted)';
+    }
+  }
+
+  function calc() {
+    const costPerK = parseFloat(document.getElementById('costPerK').value) || 0;
+    const margin = parseFloat(document.getElementById('profitMargin').value) || 0;
+
+    const activeTab = document.querySelector('.tab-btn.active').textContent.includes('Garment') ? 'garment' : 'patch';
+    if (activeTab === 'garment') {
+      calcGarment(costPerK, margin);
+    } else {
+      calcPatch(costPerK, margin);
+    }
+  }
+
+  let garmentType = 'flat'; // 'flat' | 'hat'
+
+  function setGarmentType(type, btn) {
+    garmentType = type;
+    document.querySelectorAll('.garment-type-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const hatSettings = document.getElementById('hatSettings');
+    if (type === 'hat') {
+      hatSettings.classList.add('visible');
+      document.getElementById('g_cardTitle').textContent = '🧢 Hat / Cap Job Details';
+      checkHatStitches();
+    } else {
+      hatSettings.classList.remove('visible');
+      document.getElementById('g_cardTitle').textContent = '👕 Garment Job Details';
+      document.getElementById('g_stitchWarning').classList.remove('visible');
+    }
+    calc();
+  }
+
+  function checkHatStitches() {
+    if (garmentType !== 'hat') return;
+    const stitches = parseFloat(document.getElementById('g_stitches').value) || 0;
+    const warning = document.getElementById('g_stitchWarning');
+    if (stitches > 8000) {
+      warning.classList.add('visible');
+    } else {
+      warning.classList.remove('visible');
+    }
+  }
+
+  function calcGarment(costPerK, margin) {
+    const stitches     = parseFloat(document.getElementById('g_stitches').value) || 0;
+    const placements   = parseFloat(document.getElementById('g_placements').value) || 1;
+    const toppingCost  = parseFloat(document.getElementById('g_topping').value) || 0;
+    const blankWholesale = parseFloat(document.getElementById('g_blank').value) || 0;
+    const blankMarkup  = parseFloat(document.getElementById('g_blankMarkup').value) || 1.0;
+    const colors       = parseInt(document.getElementById('g_colors').value) || 1;
+    const trims        = parseInt(document.getElementById('g_trims').value) || 0;
+    const digitizing   = parseFloat(document.getElementById('g_digitizing').value) || 0;
+    const qty          = parseFloat(document.getElementById('g_qty').value) || 1;
+    const isHat        = garmentType === 'hat';
+    const capSurcharge = isHat ? (parseFloat(document.getElementById('g_capSurcharge').value) || 0) : 0;
+    const hatMinimum   = isHat ? (parseFloat(document.getElementById('g_hatMinimum').value) || 0) : 0;
+
+    // ── Embroidery service costs
+    const extraColors     = Math.max(0, colors - 3);
+    const colorChangeCost = extraColors * 0.25;
+    const trimCost        = trims * 0.05;
+    const totalStitches   = stitches * placements;
+    const stitchCost      = (totalStitches / 1000) * costPerK;
+    const materialCost    = toppingCost * placements;
+    const digitizingPerPiece = digitizing / qty;
+
+    const embCostBase = stitchCost + materialCost + colorChangeCost + trimCost + digitizingPerPiece;
+    // Cap surcharge is added to embroidery cost before markup
+    const embCost = embCostBase + capSurcharge;
+
+    // ── Round each component to cents so displayed lines always sum to total
+    const marginDecimal  = margin / 100;
+    let embSellPrice     = Math.round(embCost * (1 + marginDecimal) * 100) / 100;
+    const embProfit      = Math.round(embCost * marginDecimal * 100) / 100;
+    const blankSellPrice = Math.round(blankWholesale * blankMarkup * 100) / 100;
+    const blankProfit    = blankWholesale > 0 ? Math.round((blankSellPrice - blankWholesale) * 100) / 100 : 0;
+
+    // ── Apply hat minimum to embroidery sell price (not to blank)
+    const minimumApplied = isHat && hatMinimum > 0 && embSellPrice < hatMinimum;
+    if (minimumApplied) embSellPrice = Math.round(hatMinimum * 100) / 100;
+
+    // ── Totals — exact sums of cent-rounded components
+    const totalCostPerPiece = Math.round(embCost * 100) / 100 + Math.round(blankWholesale * 100) / 100;
+    const pricePerPiece     = embSellPrice + blankSellPrice;
+    const profit            = Math.round((pricePerPiece - totalCostPerPiece) * 100) / 100;
+
+    const totalOrderCost  = totalCostPerPiece * qty;
+    const totalOrderPrice = pricePerPiece * qty;
+    const totalProfit     = profit * qty;
+
+    const itemLabel  = isHat ? 'Hat' : 'Piece';
+    const blankLabel = isHat ? 'Blank Hat — Wholesale → Retail' : 'Blank Garment — Wholesale → Retail';
+    const blankItemLabel = isHat ? 'Hat Sell Price' : 'Garment Sell Price';
+
+    const html = `
+      <div class="price-summary">
+        <div class="price-tag">
+          <div class="pt-label">Total Cost (Wholesale)</div>
+          <div class="pt-value">${fmt(totalCostPerPiece)}</div>
+          <div class="pt-sub">emb ${fmt(embCost)}${blankWholesale > 0 ? ` + blank ${fmt(blankWholesale)}` : ''}</div>
+        </div>
+        <div class="price-tag featured">
+          <div class="pt-label">Sell Price Per ${itemLabel}</div>
+          <div class="pt-value">${fmt(pricePerPiece)}${minimumApplied ? '<span class="min-applied-badge">MIN</span>' : ''}</div>
+          <div class="pt-sub">${minimumApplied ? `Min applied` : `${margin}% on emb`}${blankWholesale > 0 ? ` · ${blankMarkup.toFixed(1)}× on blank` : ''} · qty ${qty}</div>
+        </div>
+        <div class="price-tag">
+          <div class="pt-label">Profit Per ${itemLabel}</div>
+          <div class="pt-value" style="color:var(--green)">${fmt(profit)}</div>
+          <div class="pt-sub">${fmt(Math.round((profit / pricePerPiece) * 10000) / 100)}% of sell price</div>
+        </div>
+      </div>
+
+      <div class="results-card" style="margin-top:16px;">
+        <div class="results-header">
+          <span>Embroidery Service — Cost &amp; Price</span>
+          <span style="color:var(--muted);font-size:12px;font-weight:400;letter-spacing:0">${minimumApplied ? `Min $${hatMinimum.toFixed(2)} applied` : `${margin}% markup`}</span>
+        </div>
+        <table class="breakdown-table">
+          <tr><td>Stitch Cost (${totalStitches.toLocaleString()} stitches @ ${fmt(costPerK)}/K)</td><td>${fmt(stitchCost)}</td></tr>
+          ${materialCost > 0 ? `<tr><td>Topping / Tear Away</td><td>${fmt(materialCost)}</td></tr>` : ''}
+          ${colorChangeCost > 0 ? `<tr><td>Color Changes (${extraColors} extra × $0.25)</td><td>${fmt(colorChangeCost)}</td></tr>` : `<tr><td style="color:var(--muted)">Color Changes (${colors} color${colors !== 1 ? 's' : ''} — first 3 free)</td><td style="color:var(--muted)">$0.00</td></tr>`}
+          ${trimCost > 0 ? `<tr><td>Trims (${trims} × $0.05)</td><td>${fmt(trimCost)}</td></tr>` : ''}
+          ${capSurcharge > 0 ? `<tr><td>Cap Frame Surcharge</td><td>${fmt(capSurcharge)}</td></tr>` : ''}
+          <tr><td>Digitizing (amortized over ${qty} ${itemLabel.toLowerCase()}s)</td><td>${fmt(digitizingPerPiece)}</td></tr>
+          <tr style="background:rgba(201,168,76,0.04)"><td style="color:var(--muted);font-size:12px">Embroidery Cost</td><td style="color:var(--muted)">${fmt(embCost)}</td></tr>
+          <tr class="total-row"><td>Embroidery Sell Price ${minimumApplied ? `(minimum $${hatMinimum.toFixed(2)})` : `(+${margin}%)`}</td><td>${fmt(embSellPrice)}</td></tr>
+        </table>
+      </div>
+
+      ${blankWholesale > 0 ? `
+      <div class="results-card" style="margin-top:12px;">
+        <div class="results-header">
+          <span>${blankLabel}</span>
+          <span style="color:var(--muted);font-size:12px;font-weight:400;letter-spacing:0">${blankMarkup.toFixed(1)}× multiplier</span>
+        </div>
+        <table class="breakdown-table">
+          <tr><td>Wholesale Cost</td><td>${fmt(blankWholesale)}</td></tr>
+          <tr><td>Markup Multiplier</td><td>${blankMarkup.toFixed(1)}×</td></tr>
+          <tr><td>${isHat ? 'Hat' : 'Garment'} Profit (spread)</td><td style="color:var(--green)">${fmt(blankProfit)}</td></tr>
+          <tr class="total-row"><td>${blankItemLabel}</td><td>${fmt(blankSellPrice)}</td></tr>
+        </table>
+      </div>` : ''}
+
+      <div class="results-card" style="margin-top:12px;">
+        <div class="results-header">
+          <span>Order Totals</span>
+          <span style="color:var(--muted);font-size:12px;font-weight:400;letter-spacing:0">${qty} ${itemLabel.toLowerCase()}${qty !== 1 ? 's' : ''}</span>
+        </div>
+        <table class="breakdown-table">
+          <tr><td>Total Wholesale Cost</td><td>${fmt(totalOrderCost)}</td></tr>
+          <tr><td>Total Profit</td><td style="color:var(--green)">${fmt(totalProfit)}</td></tr>
+          <tr class="total-row"><td>Total Invoice Amount</td><td>${fmt(totalOrderPrice)}</td></tr>
+        </table>
+      </div>
+    `;
+
+    document.getElementById('g_results').innerHTML = html;
+  }
+
+  function calcPatch(costPerK, margin) {
+    const stitches = parseFloat(document.getElementById('p_stitches').value) || 0;
+    const baseCost = parseFloat(document.getElementById('p_base').value) || 0;
+    const borderCost = parseFloat(document.getElementById('p_border').value) || 0;
+    const digitizing = parseFloat(document.getElementById('p_digitizing').value) || 0;
+    const qty = parseFloat(document.getElementById('p_qty').value) || 1;
+
+    const stitchCost = (stitches / 1000) * costPerK;
+    const materialCost = baseCost + borderCost + patchBackingCost;
+    const digitizingPerPiece = digitizing / qty;
+
+    const totalCostPerPatch = stitchCost + materialCost + digitizingPerPiece;
+
+    const marginDecimal = margin / 100;
+    const basePricePerPatch = totalCostPerPatch * (1 + marginDecimal);
+
+    // Bulk discount applied to sell price — round to cent before multiplying by qty
+    const bulkDiscount    = getBulkDiscount(qty);
+    const pricePerPatch   = Math.round(basePricePerPatch * (1 - bulkDiscount) * 100) / 100;
+    const discountSavings = Math.round((basePricePerPatch - pricePerPatch) * 100) / 100;
+    const profit          = Math.round((pricePerPatch - totalCostPerPatch) * 100) / 100;
+
+    const totalOrderCost       = Math.round(totalCostPerPatch * 100) / 100 * qty;
+    const totalOrderPrice      = pricePerPatch * qty;
+    const totalProfit          = profit * qty;
+    const totalDiscountSavings = discountSavings * qty;
+
+    const activePatchType = document.querySelector('.patch-type-btn.active').textContent.split('\n')[0];
+
+    const html = `
+      <div class="price-summary">
+        <div class="price-tag">
+          <div class="pt-label">Cost Per Patch</div>
+          <div class="pt-value">${fmt(totalCostPerPatch)}</div>
+          <div class="pt-sub">before markup</div>
+        </div>
+        <div class="price-tag featured">
+          <div class="pt-label">Sell Price Per Patch</div>
+          <div class="pt-value">${fmt(pricePerPatch)}</div>
+          <div class="pt-sub">${margin}% margin${bulkDiscount > 0 ? ` · ${(bulkDiscount*100).toFixed(0)}% bulk discount` : ` · qty ${qty}`}</div>
+        </div>
+        <div class="price-tag">
+          <div class="pt-label">Profit Per Patch</div>
+          <div class="pt-value" style="color:${profit >= 0 ? 'var(--green)' : 'var(--red)'}">${fmt(profit)}</div>
+          <div class="pt-sub">${margin}% margin · excl. machine</div>
+        </div>
+      </div>
+
+      ${bulkDiscount > 0 ? `
+      <div style="background:rgba(201,168,76,0.08);border:1px solid var(--gold-dim);border-radius:8px;padding:12px 16px;margin-top:12px;display:flex;align-items:center;gap:12px;">
+        <div style="font-size:20px">🏷️</div>
+        <div>
+          <div style="font-size:12px;font-weight:700;color:var(--gold-light)">${(bulkDiscount*100).toFixed(0)}% BULK DISCOUNT APPLIED</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:2px">Saving ${fmt(discountSavings)} per patch · ${fmt(totalDiscountSavings)} total savings on ${qty} patches</div>
+        </div>
+        <div style="margin-left:auto;text-align:right;">
+          <div style="font-size:10px;color:var(--muted);text-decoration:line-through">${fmt(basePricePerPatch)}/ea</div>
+          <div style="font-size:15px;font-weight:800;color:var(--gold-light)">${fmt(pricePerPatch)}/ea</div>
+        </div>
+      </div>` : ''}
+
+      <div class="results-card" style="margin-top:${bulkDiscount > 0 ? '12' : '16'}px;">
+        <div class="results-header">
+          <span>Cost Breakdown — Per Patch (${activePatchType})</span>
+          <span style="color:var(--muted);font-size:12px;font-weight:400;letter-spacing:0">Qty: ${qty} patches</span>
+        </div>
+        <table class="breakdown-table">
+          <tr><td>Stitch Cost (${stitches.toLocaleString()} stitches @ ${fmt(costPerK)}/K)</td><td>${fmt(stitchCost)}</td></tr>
+          ${baseCost > 0 ? `<tr><td>Patch Base Material</td><td>${fmt(baseCost)}</td></tr>` : ''}
+          ${borderCost > 0 ? `<tr><td>Border / Edge Finishing</td><td>${fmt(borderCost)}</td></tr>` : ''}
+          <tr><td>Backing — ${activePatchType}</td><td>${fmt(patchBackingCost)}</td></tr>
+          <tr><td>Digitizing (amortized over ${qty} patches)</td><td>${fmt(digitizingPerPiece)}</td></tr>
+          <tr class="total-row"><td>Total Cost Per Patch</td><td>${fmt(totalCostPerPatch)}</td></tr>
+        </table>
+      </div>
+
+      <div class="results-card" style="margin-top:12px;">
+        <div class="results-header">
+          <span>Order Totals</span>
+          <span style="color:var(--muted);font-size:12px;font-weight:400;letter-spacing:0">${qty} patches</span>
+        </div>
+        <table class="breakdown-table">
+          <tr><td>Total Production Cost</td><td>${fmt(totalOrderCost)}</td></tr>
+          ${bulkDiscount > 0 ? `<tr><td style="color:var(--gold-dim)">Bulk Discount (${(bulkDiscount*100).toFixed(0)}% off sell price)</td><td style="color:var(--gold-dim)">−${fmt(totalDiscountSavings)}</td></tr>` : ''}
+          <tr><td>Total Profit</td><td style="color:${totalProfit >= 0 ? 'var(--green)' : 'var(--red)'}">${fmt(totalProfit)}</td></tr>
+          <tr class="total-row"><td>Total Invoice Amount</td><td>${fmt(totalOrderPrice)}</td></tr>
+        </table>
+      </div>
+    `;
+
+    document.getElementById('p_results').innerHTML = html;
+  }
+
+  function calcCapacity() {
+    const spm        = parseFloat(document.getElementById('cap_spm').value) || 850;
+    const machines   = parseFloat(document.getElementById('cap_machines').value) || 1;
+    const hours      = parseFloat(document.getElementById('cap_hours').value) || 8;
+    const efficiency = parseFloat(document.getElementById('cap_efficiency').value) || 75;
+    const stitches   = parseFloat(document.getElementById('cap_stitches').value) || 0;
+    const placements = parseFloat(document.getElementById('cap_placements').value) || 1;
+    const hoopTime   = parseFloat(document.getElementById('cap_hoopTime').value) || 0;
+    const qty        = parseFloat(document.getElementById('cap_qty').value) || 1;
+    const sellPrice  = parseFloat(document.getElementById('cap_sellPrice').value) || 0;
+
+    if (stitches === 0) { document.getElementById('cap_results').innerHTML = ''; return; }
+
+    // Core time calculations
+    const totalStitches    = stitches * placements;
+    const runMinPerPiece   = totalStitches / spm;                      // machine run time (min)
+    const cycleMinPerPiece = runMinPerPiece + hoopTime;                // total per piece
+    const effMinPerDay     = hours * 60 * (efficiency / 100) * machines; // effective machine-minutes/day
+    const piecesPerHour    = 60 / cycleMinPerPiece * machines;
+    const piecesPerDay     = effMinPerDay / cycleMinPerPiece;
+    const daysToComplete   = qty / piecesPerDay;
+    const fullDays         = Math.floor(daysToComplete);
+    const partialDay       = daysToComplete - fullDays;
+
+    // Time split percentages for bar
+    const runPct  = (runMinPerPiece / cycleMinPerPiece) * (efficiency / 100) * 100;
+    const hoopPct = (hoopTime / cycleMinPerPiece) * (efficiency / 100) * 100;
+    const idlePct = 100 - (efficiency);
+
+    // Revenue
+    const revenuePerDay  = sellPrice > 0 ? piecesPerDay * sellPrice : null;
+    const revenuePerHour = sellPrice > 0 ? piecesPerHour * sellPrice : null;
+    const totalRevenue   = sellPrice > 0 ? qty * sellPrice : null;
+
+    // Day grid (max 30 days shown)
+    const displayDays = Math.min(Math.ceil(daysToComplete), 30);
+    let dayGrid = '';
+    for (let d = 1; d <= displayDays; d++) {
+      if (d === 1 && displayDays === 1) {
+        dayGrid += `<div class="cap-day today" title="Day ${d}: ${Math.round(Math.min(qty, piecesPerDay))} pcs">1</div>`;
+      } else if (d <= fullDays) {
+        dayGrid += `<div class="cap-day" title="Day ${d}: ~${Math.round(piecesPerDay)} pcs">D${d}</div>`;
+      } else {
+        const partialPcs = Math.round(partialDay * piecesPerDay);
+        dayGrid += `<div class="cap-day partial" title="Day ${d}: ~${partialPcs} pcs (partial)">D${d}</div>`;
+      }
+    }
+    if (Math.ceil(daysToComplete) > 30) {
+      dayGrid += `<div class="cap-day partial" style="width:auto;padding:0 8px;font-size:10px;">+${Math.ceil(daysToComplete) - 30} more</div>`;
+    }
+
+    const completionLabel = daysToComplete < 1
+      ? `Less than 1 day`
+      : daysToComplete < 2
+      ? `1 day + partial`
+      : `${fullDays} full day${fullDays !== 1 ? 's' : ''}${partialDay > 0.05 ? ' + partial day' : ''}`;
+
+    document.getElementById('cap_results').innerHTML = `
+      <div class="cap-grid">
+        <div class="cap-stat">
+          <div class="cs-label">Run Time / Piece</div>
+          <div class="cs-value">${runMinPerPiece.toFixed(1)}<span style="font-size:13px;font-weight:400;color:var(--muted)"> min</span></div>
+          <div class="cs-sub">${totalStitches.toLocaleString()} st ÷ ${spm} SPM</div>
+        </div>
+        <div class="cap-stat">
+          <div class="cs-label">Cycle Time / Piece</div>
+          <div class="cs-value">${cycleMinPerPiece.toFixed(1)}<span style="font-size:13px;font-weight:400;color:var(--muted)"> min</span></div>
+          <div class="cs-sub">run + ${hoopTime} min hoop</div>
+        </div>
+        <div class="cap-stat">
+          <div class="cs-label">Pieces / Hour</div>
+          <div class="cs-value">${piecesPerHour.toFixed(1)}</div>
+          <div class="cs-sub">${machines} machine${machines > 1 ? 's' : ''} · ${efficiency}% eff.</div>
+        </div>
+        <div class="cap-stat featured">
+          <div class="cs-label">Pieces / Day</div>
+          <div class="cs-value">${Math.round(piecesPerDay)}</div>
+          <div class="cs-sub">${hours}hr day · ${machines} head${machines > 1 ? 's' : ''}</div>
+        </div>
+      </div>
+
+      <div class="cap-timeline">
+        <div class="cap-timeline-label">Time Distribution — Per Piece Cycle</div>
+        <div class="cap-bar-wrap">
+          <div class="cap-bar-run" style="width:${runPct.toFixed(1)}%">${runPct > 12 ? Math.round(runPct) + '% run' : ''}</div>
+          <div class="cap-bar-hoop" style="width:${hoopPct.toFixed(1)}%">${hoopPct > 8 ? Math.round(hoopPct) + '% hoop' : ''}</div>
+          <div class="cap-bar-idle" style="flex-basis:${idlePct.toFixed(1)}%;flex-grow:0"></div>
+        </div>
+        <div class="cap-legend">
+          <span><span class="cap-legend-dot" style="background:var(--gold)"></span>Machine run (${Math.round(runPct)}%)</span>
+          <span><span class="cap-legend-dot" style="background:#3a6e52"></span>Hooping (${Math.round(hoopPct)}%)</span>
+          <span><span class="cap-legend-dot" style="background:var(--border)"></span>Downtime / changeover (${Math.round(idlePct)}%)</span>
+        </div>
+      </div>
+
+      <div class="results-card" style="margin-top:12px;">
+        <div class="results-header">
+          <span>Order Fulfillment — ${qty} pieces</span>
+          <span style="color:var(--gold-dim);font-size:12px;font-weight:600;letter-spacing:0">${completionLabel}</span>
+        </div>
+        <table class="breakdown-table">
+          <tr><td>Pieces per day (${hours}hr, ${efficiency}% efficiency)</td><td>${Math.round(piecesPerDay)}</td></tr>
+          <tr><td>Full days to complete</td><td>${fullDays}${partialDay > 0.05 ? ` + partial` : ''}</td></tr>
+          ${sellPrice > 0 ? `
+          <tr><td>Revenue per hour</td><td>${fmt(revenuePerHour)}</td></tr>
+          <tr><td>Revenue per day</td><td>${fmt(revenuePerDay)}</td></tr>
+          <tr class="total-row"><td>Total Order Revenue (${qty} pcs)</td><td>${fmt(totalRevenue)}</td></tr>
+          ` : `<tr><td style="color:var(--muted)">Enter a sell price above to see revenue projections</td><td></td></tr>`}
+        </table>
+      </div>
+
+      <div class="cap-timeline" style="margin-top:12px;">
+        <div class="cap-timeline-label">Production Schedule — ${Math.ceil(daysToComplete)} Day${Math.ceil(daysToComplete) !== 1 ? 's' : ''}</div>
+        <div class="cap-day-grid">${dayGrid}</div>
+        ${Math.ceil(daysToComplete) > 30 ? `<p style="font-size:11px;color:var(--muted);margin-top:8px">Showing first 30 days of ${Math.ceil(daysToComplete)} total</p>` : ''}
+      </div>
+    `;
+  }
+
+  function syncFromActive() {
+    const activeTab = document.querySelector('.tab-btn.active').textContent;
+    if (activeTab.includes('Garment')) {
+      const stitches   = document.getElementById('g_stitches').value;
+      const placements = document.getElementById('g_placements').value;
+      const qty        = document.getElementById('g_qty').value;
+      document.getElementById('cap_stitches').value   = stitches;
+      document.getElementById('cap_placements').value = placements;
+      document.getElementById('cap_qty').value        = qty;
+      // Try to get sell price from results
+      const priceMatch = document.querySelector('#g_results .pt-value');
+      if (priceMatch) {
+        const raw = priceMatch.textContent.replace(/[$,]/g, '');
+        if (!isNaN(parseFloat(raw))) document.getElementById('cap_sellPrice').value = parseFloat(raw).toFixed(2);
+      }
+    } else if (activeTab.includes('Patch')) {
+      const stitches = document.getElementById('p_stitches').value;
+      const qty      = document.getElementById('p_qty').value;
+      document.getElementById('cap_stitches').value   = stitches;
+      document.getElementById('cap_placements').value = 1;
+      document.getElementById('cap_qty').value        = qty;
+      const priceMatch = document.querySelector('#p_results .pt-value');
+      if (priceMatch) {
+        const raw = priceMatch.textContent.replace(/[$,]/g, '');
+        if (!isNaN(parseFloat(raw))) document.getElementById('cap_sellPrice').value = parseFloat(raw).toFixed(2);
+      }
+    } else {
+      alert('Switch to the Garment or Patch tab first, then sync.');
+      return;
+    }
+    calcCapacity();
+  }
+
+  // Initialize on load
+  updateMarkupDisplay();
+  updateColorBadge();
+  updateBulkTiers();
+  calc();
+  calcCapacity();
+
+  function ensureBothCalcd() {
+    const costPerK = parseFloat(document.getElementById('costPerK').value) || 0;
+    const margin = parseFloat(document.getElementById('profitMargin').value) || 0;
+    calcGarment(costPerK, margin);
+    calcPatch(costPerK, margin);
+  }
+
+  function exportInternal() {
+    ensureBothCalcd();
+    const today = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+    document.title = `CABL Internal Report — ${today}`;
+    document.body.dataset.printMode = 'internal';
+    window.print();
+    setTimeout(() => {
+      document.body.dataset.printMode = '';
+      document.title = 'CA Black Label — Embroidery Pricing Calculator';
+    }, 1000);
+  }
+
+  function exportCustomer() {
+    ensureBothCalcd();
+    buildCustomerInvoice();
+    const today = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+    document.title = `CABL Invoice — ${document.getElementById('inv_client').value || today}`;
+    document.body.dataset.printMode = 'customer';
+    window.print();
+    setTimeout(() => {
+      document.body.dataset.printMode = '';
+      document.title = 'CA Black Label — Embroidery Pricing Calculator';
+    }, 1000);
+  }
+
+  function buildCustomerInvoice() {
+    const activeTab = document.querySelector('.tab-btn.active').textContent.includes('Garment') ? 'garment' : 'patch';
+    const client = document.getElementById('inv_client').value || 'Valued Customer';
+    const po = document.getElementById('inv_po').value;
+    const terms = document.getElementById('inv_terms').value;
+    const notes = document.getElementById('inv_notes').value;
+    const today = new Date();
+    const dateStr = today.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+    const invNum = 'INV-' + today.getFullYear() + '-' + String(today.getMonth()+1).padStart(2,'0') + String(today.getDate()).padStart(2,'0');
+
+    const costPerK  = parseFloat(document.getElementById('costPerK').value) || 0;
+    const margin    = parseFloat(document.getElementById('profitMargin').value) || 0;
+    const marginDec = margin / 100;
+
+    let lineRows = '';
+    let subtotal = 0;
+    let discountAmt = 0;
+    let discountLabel = '';
+
+    if (activeTab === 'garment') {
+      const stitches    = parseFloat(document.getElementById('g_stitches').value) || 0;
+      const placements  = parseFloat(document.getElementById('g_placements').value) || 1;
+      const toppingCost = parseFloat(document.getElementById('g_topping').value) || 0;
+      const blankWS     = parseFloat(document.getElementById('g_blank').value) || 0;
+      const blankMkup   = parseFloat(document.getElementById('g_blankMarkup').value) || 1.0;
+      const colors      = parseInt(document.getElementById('g_colors').value) || 1;
+      const trims       = parseInt(document.getElementById('g_trims').value) || 0;
+      const digitizing  = parseFloat(document.getElementById('g_digitizing').value) || 0;
+      const qty         = parseFloat(document.getElementById('g_qty').value) || 1;
+
+      const totalSt    = stitches * placements;
+      const stCost     = (totalSt / 1000) * costPerK;
+      const matCost    = toppingCost * placements;
+      const colorCost  = Math.max(0, colors - 3) * 0.25;
+      const trimCost   = trims * 0.05;
+      const digCost    = digitizing / qty;
+      const embCostOnly  = stCost + matCost + colorCost + trimCost + digCost;
+      const embSellPrice = embCostOnly * (1 + marginDec);
+      const blankSellPrice = blankWS * blankMkup;
+
+      const embDesc = `Custom Embroidery Service<div class="desc-sub">${totalSt.toLocaleString()} stitches · ${placements} placement${placements>1?'s':''} · ${colors} color${colors>1?'s':''}</div>`;
+      lineRows += `<tr><td><div class="desc-main">${embDesc}</div></td><td>${qty}</td><td>${fmt(embSellPrice)}</td><td>${fmt(embSellPrice * qty)}</td></tr>`;
+      subtotal += embSellPrice * qty;
+
+      if (blankWS > 0) {
+        lineRows += `<tr><td><div class="desc-main">Blank Garments</div><div class="desc-sub">Sourced &amp; supplied by CA Black Label</div></td><td>${qty}</td><td>${fmt(blankSellPrice)}</td><td>${fmt(blankSellPrice * qty)}</td></tr>`;
+        subtotal += blankSellPrice * qty;
+      }
+    } else {
+      const stitches   = parseFloat(document.getElementById('p_stitches').value) || 0;
+      const baseCost   = parseFloat(document.getElementById('p_base').value) || 0;
+      const borderCost = parseFloat(document.getElementById('p_border').value) || 0;
+      const digitizing = parseFloat(document.getElementById('p_digitizing').value) || 0;
+      const qty        = parseFloat(document.getElementById('p_qty').value) || 1;
+      const patchType  = document.querySelector('.patch-type-btn.active').textContent.split('\n')[0];
+      const bulkDisc   = getBulkDiscount(qty);
+
+      const stCost    = (stitches / 1000) * costPerK;
+      const matCost   = baseCost + borderCost + patchBackingCost;
+      const digCost   = digitizing / qty;
+      const totalCost = stCost + matCost + digCost;
+      const basePrice = totalCost * (1 + marginDec);
+      const unitPrice = basePrice * (1 - bulkDisc);
+      const sizeLabel = document.getElementById('p_size').value !== 'custom' ? document.getElementById('p_size').value + '" ' : '';
+
+      const pDesc = `Custom Embroidered Patches — ${patchType}<div class="desc-sub">${sizeLabel}${stitches.toLocaleString()} stitches · ${patchType} backing</div>`;
+      lineRows += `<tr><td><div class="desc-main">${pDesc}</div></td><td>${qty}</td><td>${fmt(basePrice)}</td><td>${fmt(basePrice * qty)}</td></tr>`;
+      subtotal += basePrice * qty;
+
+      if (bulkDisc > 0) {
+        discountAmt = basePrice * qty * bulkDisc;
+        discountLabel = `Bulk Discount (${(bulkDisc*100).toFixed(0)}% — ${qty} patches)`;
+        lineRows += `<tr class="discount-row"><td colspan="3">${discountLabel}</td><td>−${fmt(discountAmt)}</td></tr>`;
+      }
+    }
+
+    const total = subtotal - discountAmt;
+
+    document.getElementById('print-invoice').innerHTML = `
+      <div class="inv-page">
+        <div class="inv-header">
+          <div class="inv-brand">
+            <div class="inv-logo">CA<br>BL</div>
+            <div class="inv-biz-name">CA Black Label</div>
+            <div class="inv-biz-sub">Custom Embroidery &amp; Apparel · admin@cablacklabel.com</div>
+          </div>
+          <div class="inv-meta">
+            <div class="inv-title">INVOICE</div>
+            <table>
+              <tr><td>Invoice #</td><td>${invNum}</td></tr>
+              <tr><td>Date</td><td>${dateStr}</td></tr>
+              ${po ? `<tr><td>PO / Ref</td><td>${po}</td></tr>` : ''}
+              <tr><td>Terms</td><td>${terms}</td></tr>
+            </table>
+          </div>
+        </div>
+
+        <div class="inv-parties">
+          <div>
+            <div class="inv-party-label">Bill To</div>
+            <div class="inv-party-value">${client}</div>
+          </div>
+          <div>
+            <div class="inv-party-label">From</div>
+            <div class="inv-party-value">CA Black Label<div class="sub">admin@cablacklabel.com</div></div>
+          </div>
+        </div>
+
+        <table class="inv-table">
+          <thead>
+            <tr>
+              <td style="width:50%">Description</td>
+              <td style="width:12%">Qty</td>
+              <td style="width:18%">Unit Price</td>
+              <td style="width:20%">Amount</td>
+            </tr>
+          </thead>
+          <tbody>${lineRows}</tbody>
+        </table>
+
+        <div class="inv-totals">
+          <div class="inv-totals-inner">
+            <div class="inv-totals-row"><span class="tl">Subtotal</span><span class="tv">${fmt(subtotal)}</span></div>
+            ${discountAmt > 0 ? `<div class="inv-totals-row"><span class="tl" style="color:#8a6e2f">Bulk Discount</span><span class="tv" style="color:#8a6e2f">−${fmt(discountAmt)}</span></div>` : ''}
+            <div class="inv-totals-final"><span>Total Due</span><span>${fmt(total)}</span></div>
+          </div>
+        </div>
+
+        ${notes ? `<div class="inv-notes"><div class="inv-notes-label">Notes</div><div class="inv-notes-text">${notes}</div></div>` : ''}
+
+        <div class="inv-terms">
+          <div class="inv-terms-left">
+            <div class="terms-label">Payment Terms</div>
+            <div class="terms-value">${terms}</div>
+          </div>
+          <div class="inv-sig">
+            <div class="sig-line"></div>
+            <div class="sig-label">Authorized Signature</div>
+          </div>
+        </div>
+
+        <div class="inv-footer">CA Black Label · admin@cablacklabel.com · Thank you for your business!</div>
+      </div>
+    `;
+  }
+</script>
+<div id="print-invoice" style="display:none;"></div>
+
+<div class="print-footer">
+  CA Black Label · admin@cablacklabel.com · Generated <span id="printDate"></span>
+</div>
+<script>
+  document.getElementById('printDate').textContent = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+  // Register service worker for PWA / offline support
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
+  }
+</script>
+</body>
+</html>
